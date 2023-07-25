@@ -1,0 +1,40 @@
+<!-- By Oru-Bus - orubus.twitch@gmail.com -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Reflex</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" href="./change_userName.css">
+    </head>
+    <body>
+        <form method="post" id="form">
+            <div class="container">
+                <h1>Changer l'identifiant</h1>
+                
+                <hr>
+                
+
+                <label for="actualUserName"><b>Identifiant actuel</b></label>
+                <input type="text" placeholder="Entrez votre identifiant" name="actualUserName" required id="actualUserName">
+                <p id="userName-error"></p>
+
+                <label for="newUserName"><b>Nouvel identifiant </b></label>
+                <input type="text" placeholder="Entrez votre nouvel identifiant" name="newUserName" required id="newUserName">
+
+
+                <label for="password"><b>Mot de passe</b></label>
+                <input type="password" placeholder="Entrez votre mot de passe" name="password" required id="password">
+                <p id="password-error"></p>
+                
+                
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" id="cancelbtnID">Annuler</button>
+                    <button type="submit" class="loadNewUserName" id="loadNewUserName">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+        
+        <script src="./change_userName.js"></script>
+    </body>
+</html>

@@ -1,0 +1,31 @@
+<!-- By Oru-Bus - orubus.twitch@gmail.com -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Reflex</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <form method="post" id="form">
+            <div class="container">
+                <h1>Connexion</h1>
+                
+                <hr>
+                
+                <label for="userName"><b>Identifiant</b></label>
+                <input type="text" placeholder="Entrez votre identifiant" name="userName" required id="userName">
+                <p id="userName-error"></p>
+
+                <label for="password"><b>Mot de passe</b></label>
+                <input type="password" placeholder="Entrez votre mot de passe" name="password" required id="password">
+                <p id="password-error"></p>
+
+                <button type="submit">Se connecter</button>
+                <label>Vous n'avez pas de compte ?  </label><a href="../sign_up_page/sign_up.html" style="text-decoration:none"><strong>Créer un compte</strong></a>
+            </div>
+        </form>
+        <script src="./login.js"></script>
+    </body>
+</html>

@@ -1,0 +1,42 @@
+<!-- By Oru-Bus - orubus.twitch@gmail.com -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Reflex</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" href="style_signup.css">
+    </head>
+    <body>
+        <form method="post" id="form">
+            <div class="container">
+                <h1>Inscription</h1>
+                
+                <hr>
+                
+                <label for="email"><b>Email</b></label>
+                <input type="text" placeholder="Entrez une adresse Email" name="email" required id="email">
+                <p id="email-error"></p>
+
+                <label for="userName"><b>Identifiant</b></label>
+                <input type="text" placeholder="Entrez un identifiant" name="userName" required id="userName">
+                <p id="userName-error"></p>
+
+                <label for="password"><b>Mot de passe</b></label>
+                <input type="password" placeholder="Entrez un mot de passe" name="password" required id="password">
+                
+                <label for="password-repeat"><b>Confirmer le mot de passe</b></label>
+                <input type="password" placeholder="Confirmez le mot de passe" name="password-repeat" required id="rePassword">
+                <p id="password-repeat-error"></p>
+                
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" id="cancelbtnID">Annuler</button>
+                    <button type="submit" class="signupbtn" id="signupbtnID">S'inscrire</button>
+                </div>
+                <label>Vous avez un compte ?  </label><a href="../log_in_page/log_in.html" style="text-decoration:none"><strong>Se connecter</strong></a>
+            </div>
+        </form>
+
+        <script src="./signup.js"></script>
+    </body>
+</html>
