@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const {MSICreator} = require('electron-wix-msi');
 const path = require('path');
 

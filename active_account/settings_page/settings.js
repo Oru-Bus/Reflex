@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const disconnectBtn = document.getElementById("disconnect");
 const changeUserNameBtn = document.getElementById("changeUserName");
 const changePassword = document.getElementById("changePassword");
@@ -10,7 +12,7 @@ disconnectBtn.addEventListener('click', () => {
             console.log(err);
         };
     });
-    window.location.href = '../../log_in_page/log_in.html';
+    window.location.href = '../../log_in_page/login.html';
 });
 
 changeUserNameBtn.addEventListener('click', () => {

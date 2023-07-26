@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const { app, dialog, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 require('./data/dataBase');
@@ -16,9 +18,9 @@ function createWindow() {
         },
     });
   
-    win.setMenuBarVisibility(false);
+    // win.setMenuBarVisibility(false);
   
-    win.loadFile('log_in_page/log_in.html');
+    win.loadFile('log_in_page/login.html');
   
     win.on('close', function(e) {
         const choice = dialog.showMessageBoxSync(this, {

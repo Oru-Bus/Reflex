@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 

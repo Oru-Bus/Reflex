@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const {model, Schema} = require('mongoose');
 const bcrypt = require('bcryptjs')
 const collectionName = "users";

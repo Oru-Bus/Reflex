@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const taskForm = document.querySelector("#form");
 const taskUserName = document.querySelector("#userName");
 const taskActualPassword = document.querySelector("#actualPassword");
@@ -10,6 +12,8 @@ const fs = require('fs');
 
 taskForm.addEventListener('submit', e => {
     e.preventDefault();
+    document.getElementById('password-error').innerHTML = "";
+    document.getElementById('userName-error').innerHTML = "";
     if (userInfos.userName == taskUserName.value) {
         bcrypt.compare(taskActualPassword.value, userInfos.password, function(err, result) {
             if (err) {
@@ -23,14 +27,12 @@ taskForm.addEventListener('submit', e => {
                     ipcRenderer.send('change-password', user);
                 } else {
                     const message = `<p style="background-color: red; padding: 5px"> Le mot de passe ne correspond pas. </p>`;
-                    document.getElementById('userName-error').innerHTML = "";
                     document.getElementById('password-error').innerHTML = message;
                 };
             };
         });
     } else {
         const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond à aucun compte. </p>`;
-        document.getElementById('password-error').innerHTML = "";
         document.getElementById('userName-error').innerHTML = message;
     };
 });
@@ -43,7 +45,7 @@ ipcRenderer.on("password-changed", (e, args) => {
             console.log(err);
         };
     });
-    window.location.href = "../../log_in_page/log_in.html";
+    window.location.href = "../../log_in_page/login.html";
 });
 
 const cancelBtn = document.getElementById("cancelbtnID");

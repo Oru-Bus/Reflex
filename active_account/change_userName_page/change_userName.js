@@ -1,3 +1,5 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
 const taskForm = document.querySelector("#form");
 const taskActualUserName = document.querySelector("#actualUserName");
 const taskNewUserName = document.querySelector("#newUserName");
@@ -50,7 +52,7 @@ ipcRenderer.on("userName-changed", (e, args) => {
             console.log(err);
         };
     });
-    window.location.href = "../../log_in_page/log_in.html";
+    window.location.href = "../../log_in_page/login.html";
 });
 
 const cancelBtn = document.getElementById("cancelbtnID");
