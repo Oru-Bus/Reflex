@@ -10,6 +10,9 @@ const fs = require('fs');
 
 taskForm.addEventListener('submit', e => {
     e.preventDefault();
+    document.getElementById('actualUserName-error').innerHTML = "";
+    document.getElementById('newUserName-error').innerHTML = "";
+    document.getElementById('password-error').innerHTML = "";
     if (userInfos.userName == taskActualUserName.value) {
         bcrypt.compare(taskPassword.value, userInfos.password, function(err, result) {
             if (err) {
@@ -23,16 +26,20 @@ taskForm.addEventListener('submit', e => {
                     ipcRenderer.send('change-userName', user);
                 } else {
                     const message = `<p style="background-color: red; padding: 5px"> Le mot de passe ne correspond pas. </p>`;
-                    document.getElementById('userName-error').innerHTML = "";
                     document.getElementById('password-error').innerHTML = message;
                 };
             };
         });
     } else {
-        const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond à aucun compte. </p>`;
-        document.getElementById('password-error').innerHTML = "";
-        document.getElementById('userName-error').innerHTML = message;
+        const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond pas au compte actuel. </p>`;
+        document.getElementById('actualUserName-error').innerHTML = message;
     };
+});
+
+ipcRenderer.on("userName-exist", (e, args) => {
+    const userName_exist = JSON.parse(args);
+    const message = `<p style="background-color: red; padding: 5px"> ${userName_exist} </p>`
+    document.getElementById('newUserName-error').innerHTML = message;
 });
 
 ipcRenderer.on("userName-changed", (e, args) => {

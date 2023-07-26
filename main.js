@@ -87,12 +87,21 @@ ipcMain.on("log-in", async (e, args) => {
 
 
 ipcMain.on('change-userName', async (e, args) => {
-    await Users.updateOne(
-        {userName: args.actualUserName},
-        {$set : {userName : args.newUserName}}
+    const userName_exist = await Users.findOne(
+        {userName: args.newUserName}
     );
-    const message = "Le nouvel identifiant a bien été enregistré.";
-    e.reply("userName-changed", JSON.stringify(message));
+
+    if (userName_exist) {
+        const userNameExist = "Cet identifiant n'est pas disponible.";
+        e.reply("userName-exist", JSON.stringify(userNameExist));
+    } else {
+        await Users.updateOne(
+            {userName: args.actualUserName},
+            {$set : {userName : args.newUserName}}
+        );
+        const message = "Le nouvel identifiant a bien été enregistré.";
+        e.reply("userName-changed", JSON.stringify(message));
+    }
 });
 
 ipcMain.on('change-password', async (e, args) => {
