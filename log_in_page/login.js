@@ -21,11 +21,11 @@ function showLoadingPage() {
     loadingPage.style.height = "100%";
     loadingPage.style.border = "none";
     document.body.appendChild(loadingPage);
-}
+};
 
 function getRandomSeconds(minSeconds, maxSeconds) {
     return Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
-}
+};
 
 function hideLoadingPage(minSeconds, maxSeconds, handle) {
     if (isLoading) {
@@ -42,8 +42,8 @@ function hideLoadingPage(minSeconds, maxSeconds, handle) {
                 isLoading = false;
             }
         }, randomSeconds);
-    }
-}
+    };
+};
 
 function handleRedirect(location, minSeconds, maxSeconds) {
     const randomSeconds = hideLoadingPage(minSeconds, maxSeconds, true);
@@ -93,4 +93,12 @@ ipcRenderer.on("user-no-exist", (e, args) => {
     hideLoadingPage(800, 1200, false);
     document.getElementById('userName-error').innerHTML = message;
     document.getElementById('password-error').innerHTML = "";
+});
+
+const signupLink = document.getElementById('signupLink');
+signupLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = signupLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
 });

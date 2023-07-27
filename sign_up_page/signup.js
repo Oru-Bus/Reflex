@@ -25,7 +25,7 @@ function showLoadingPage() {
 
 function getRandomSeconds(minSeconds, maxSeconds) {
     return Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
-}
+};
 
 function hideLoadingPage(minSeconds, maxSeconds, handle) {
     if (isLoading) {
@@ -42,8 +42,8 @@ function hideLoadingPage(minSeconds, maxSeconds, handle) {
                 isLoading = false;
             }
         }, randomSeconds);
-    }
-}
+    };
+};
 
 function handleRedirect(location, minSeconds, maxSeconds) {
     const randomSeconds = hideLoadingPage(minSeconds, maxSeconds, true);
@@ -97,6 +97,16 @@ ipcRenderer.on("new-user-created", (e, args) => {
 });
 
 const cancelBtn = document.getElementById("cancelbtnID");
-cancelBtn.addEventListener('click', () => {
-    window.location.href = '../log_in_page/login.html';
+cancelBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    handleRedirect('../log_in_page/login.html', 150, 400);
+});
+
+const loginLink = document.getElementById('loginLink');
+loginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = loginLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
 });
