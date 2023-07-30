@@ -78,16 +78,18 @@ const ctx = document.getElementById('chart');
 const lineChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
+        labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
         datasets: [{
             data: [],
-            borderWidth: 1
+            fill: false,
+            borderWidth: 2.5
         }]
     },
     options: {
         scales: {
             y: {
-                beginAtZero: true
+                beginAtZero: true,
+                stacked: false
             }
         },
         plugins: {
@@ -95,13 +97,19 @@ const lineChart = new Chart(ctx, {
                 display: false
             }
         },
+        elements: {
+            point: {
+                radius: 2
+            }
+        }
     }
 });
 
-function updateChartWithData(data) {
+function updateChartWithData(data, label) {
     lineChart.data.datasets[0].data = data;
+    lineChart.data.labels = label;
     lineChart.update();
-}
+};
 
 const startBtn = document.getElementById("startArduino");
 startBtn.addEventListener('click', () => {
@@ -133,6 +141,7 @@ startBtn.addEventListener('click', () => {
 
     run().catch(console.dir);
 
-    const predefinedData = [10, 20, 15, 30, 25, 35, 40, 45];
-    updateChartWithData(predefinedData);
+    const predefinedLabel = [1, 2, 3, 4, 5, 6, 7];
+    const predefinedData = [0.256, 0.2151, 0.8484, 0.4564, 0.7816, 0.987, 0.254];
+    updateChartWithData(predefinedData, predefinedLabel);
 });
