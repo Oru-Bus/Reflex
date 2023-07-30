@@ -2,6 +2,7 @@
 
 const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
+const {Chart, Legend, Title} = require('chart.js/auto');
 
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
@@ -49,6 +50,59 @@ function handleRedirect(location, minSeconds, maxSeconds) {
     }, randomSeconds);
 };
 
+const homeLink = document.getElementById('homeLink');
+homeLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = homeLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
+});
+
+const tutoLink = document.getElementById('tutoLink');
+tutoLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = tutoLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
+});
+
+const settingsLink = document.getElementById('settingsLink');
+settingsLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = settingsLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
+});
+
+const ctx = document.getElementById('chart');
+const lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
+        datasets: [{
+            data: [],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+    }
+});
+
+function updateChartWithData(data) {
+    lineChart.data.datasets[0].data = data;
+    lineChart.update();
+}
+
 const startBtn = document.getElementById("startArduino");
 startBtn.addEventListener('click', () => {
     var now = new Date();
@@ -78,28 +132,7 @@ startBtn.addEventListener('click', () => {
     };
 
     run().catch(console.dir);
-});
 
-const homeLink = document.getElementById('homeLink');
-homeLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    showLoadingPage();
-    const linkHref = homeLink.getAttribute('href');
-    handleRedirect(linkHref, 150, 400);
-});
-
-const tutoLink = document.getElementById('tutoLink');
-tutoLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    showLoadingPage();
-    const linkHref = tutoLink.getAttribute('href');
-    handleRedirect(linkHref, 150, 400);
-});
-
-const settingsLink = document.getElementById('settingsLink');
-settingsLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    showLoadingPage();
-    const linkHref = settingsLink.getAttribute('href');
-    handleRedirect(linkHref, 150, 400);
+    const predefinedData = [10, 20, 15, 30, 25, 35, 40, 45];
+    updateChartWithData(predefinedData);
 });
