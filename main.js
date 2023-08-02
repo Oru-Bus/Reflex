@@ -81,7 +81,7 @@ ipcMain.on("log-in", async (e, args) => {
     if(userInfo){
         e.reply("get-user", JSON.stringify(userInfo));
     } else {
-        const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond à aucun compte. </p>`
+        const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond à aucun compte. </p>`;
         e.reply("user-no-exist", JSON.stringify(message));
     };
 });

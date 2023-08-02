@@ -91,8 +91,8 @@ ipcRenderer.on("get-user", (e, args) => {
 ipcRenderer.on("user-no-exist", (e, args) => {
     const message = JSON.parse(args);
     hideLoadingPage(800, 1200, false);
-    document.getElementById('userName-error').innerHTML = message;
     document.getElementById('password-error').innerHTML = "";
+    document.getElementById('userName-error').innerHTML = message;
 });
 
 const signupLink = document.getElementById('signupLink');

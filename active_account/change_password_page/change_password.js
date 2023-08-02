@@ -9,6 +9,48 @@ const userInfos = require('../account/user_informations.json');
 const bcrypt = require("bcryptjs");
 const fs = require('fs');
 
+function showLoadingPage() {
+    isLoading = true;
+
+    const loadingPage = document.createElement('iframe');
+    loadingPage.src = " ../../loading_page/loading.html";
+    loadingPage.style.position = "fixed";
+    loadingPage.style.top = "0";
+    loadingPage.style.left = "0";
+    loadingPage.style.width = "100%";
+    loadingPage.style.height = "100%";
+    loadingPage.style.border = "none";
+    document.body.appendChild(loadingPage);
+};
+
+function getRandomSeconds(minSeconds, maxSeconds) {
+    return Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
+};
+
+function hideLoadingPage(minSeconds, maxSeconds, handle) {
+    if (isLoading) {
+        if (handle) {
+            var randomSeconds = getRandomSeconds(minSeconds, maxSeconds);
+            return randomSeconds;
+        } else {
+            var randomSeconds = getRandomSeconds(minSeconds, maxSeconds);
+        }
+        setTimeout(() => {
+            const loadingPage = document.querySelector('iframe[src="../../loading_page/loading.html"]');
+            if (loadingPage) {
+                loadingPage.remove();
+                isLoading = false;
+            }
+        }, randomSeconds);
+    };
+};
+
+function handleRedirect(location, minSeconds, maxSeconds) {
+    const randomSeconds = hideLoadingPage(minSeconds, maxSeconds, true);
+    setTimeout(() => {
+        window.location.href = location;
+    }, randomSeconds);
+};
 
 taskForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -49,6 +91,8 @@ ipcRenderer.on("password-changed", (e, args) => {
 });
 
 const cancelBtn = document.getElementById("cancelbtnID");
-cancelBtn.addEventListener('click', () => {
-    window.location.href = "../settings_page/settings.html";
+cancelBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    handleRedirect('../settings_page/settings.html', 150, 400);
 });

@@ -91,3 +91,10 @@ button:hover {
 #choose-mode {
     margin-right: 10px;
 }
+
+#addData {
+    width: 150px;
+    padding: 10px 20px;
+    background-color: #257beb;
+    border-radius: 5px;
+}

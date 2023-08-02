@@ -3,7 +3,7 @@
 const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 const {Chart, Legend, Title} = require('chart.js/auto');
-
+var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
 
@@ -111,19 +111,43 @@ function updateChartWithData(data, label) {
     lineChart.update();
 };
 
+const chronoElement = document.getElementById('chrono');
+let startTime;
+let timerInterval;
+var docName = "";
+function displayChrono() {
+    const elapsedTime = Date.now() - startTime;
+    const seconds = Math.floor(elapsedTime / 1000);
+    const milliseconds = elapsedTime % 1000;
+    if (seconds >= 60) {
+        stopChrono();
+    } else {
+        const formattedTime = `${seconds.toString().padStart(2, '0')} : ${milliseconds.toString().padStart(3, '0')}`;
+        chronoElement.textContent = formattedTime;
+    }
+};
+
+function stopChrono() {
+    clearInterval(timerInterval);
+    chronoElement.textContent = "60 : 000";
+    docName = "";
+};
+
 const startBtn = document.getElementById("startArduino");
 startBtn.addEventListener('click', () => {
+    startTime = Date.now();
+    timerInterval = setInterval(displayChrono, 1);
+
     var now = new Date();
     var year   = now.getFullYear();
     var month    = ('0'+(now.getMonth()+1)).slice(-2);
     var day    = ('0'+now.getDate()   ).slice(-2);
     var hour   = ('0'+now.getHours()  ).slice(-2);
     var minute  = ('0'+now.getMinutes()).slice(-2);
-    const docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
+    docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
     
-    const url = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
 
-    const client = new MongoClient(url);
+    const client = new MongoClient(dbUrl);
     async function run() {
         try {
             const database = client.db("Reflex");
@@ -131,6 +155,7 @@ startBtn.addEventListener('click', () => {
 
             const doc = {
                 documentName: docName,
+                numberOfBuzz: 0,
             };
             await collection.insertOne(doc);
             console.log("Doc insert");
@@ -138,10 +163,56 @@ startBtn.addEventListener('click', () => {
             await client.close();
         };
     };
+    run().catch(console.dir);
+});
 
+let lastClickTime = Date.now();
+function formatTime(milliseconds) {
+    const seconds = Math.floor(milliseconds / 1000);
+    const remainingMilliseconds = milliseconds % 1000;
+    return `${seconds}.${remainingMilliseconds.toString().padStart(3, '0')}`;
+};
+
+var nbrBuzzList = [];
+var reflexTimeList = [];
+const addData = document.getElementById('addData');
+addData.addEventListener('click', (e) => {
+    e.preventDefault();
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - lastClickTime;
+    lastClickTime = currentTime;
+    const client = new MongoClient(dbUrl);
+    async function run() {
+        try {
+            const database = client.db("Reflex");
+            const collection = database.collection(userInfos.userName);
+            await collection.updateOne(
+                {documentName : docName},
+                { $inc: { numberOfBuzz: 1 },
+                $push: { reflexTime: formatTime(elapsedTime) } }
+            );
+            const doc = await collection.findOne(
+                {documentName: docName}
+            );
+            if (doc.numberOfBuzz > 1) {
+                for (let buzz = doc.numberOfBuzz; buzz < doc.numberOfBuzz+1; buzz++) {
+                    nbrBuzzList.push(buzz);
+                    reflexTimeList.push(doc.reflexTime[buzz-1]);
+                };
+            } else {
+                for (let buzz = 1; buzz < doc.numberOfBuzz+1; buzz++) {
+                    nbrBuzzList.push(buzz);
+                    reflexTimeList.push(doc.reflexTime[buzz-1]);
+                };
+            };
+        } finally {
+            await client.close();
+        };
+    };
     run().catch(console.dir);
 
-    const predefinedLabel = [1, 2, 3, 4, 5, 6, 7];
-    const predefinedData = [0.256, 0.2151, 0.8484, 0.4564, 0.7816, 0.987, 0.254];
+    console.log(reflexTimeList);
+    const predefinedLabel = nbrBuzzList;
+    const predefinedData = reflexTimeList;
     updateChartWithData(predefinedData, predefinedLabel);
 });

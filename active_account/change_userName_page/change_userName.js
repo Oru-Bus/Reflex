@@ -8,13 +8,15 @@ const {ipcRenderer} = require('electron');
 const userInfos = require('../account/user_informations.json');
 const bcrypt = require("bcryptjs");
 const fs = require('fs');
+let isLoading = false;
+let passwordCompare = false;
 
 
 function showLoadingPage() {
     isLoading = true;
 
     const loadingPage = document.createElement('iframe');
-    loadingPage.src = " ../../loading_page/loading.html";
+    loadingPage.src = "../../loading_page/loading.html";
     loadingPage.style.position = "fixed";
     loadingPage.style.top = "0";
     loadingPage.style.left = "0";
@@ -64,19 +66,22 @@ taskForm.addEventListener('submit', e => {
             if (err) {
                 console.log(err);
             } else {
-                if (result){
-                    const user = {
-                        actualUserName: taskActualUserName.value,
-                        newUserName: taskNewUserName.value,
-                    };
-                    ipcRenderer.send('change-userName', user);
-                } else {
-                    const message = `<p style="background-color: red; padding: 5px"> Le mot de passe ne correspond pas. </p>`;
-                    document.getElementById('password-error').innerHTML = message;
-                };
+                passwordCompare = result;
             };
         });
+        if (passwordCompare){
+            const user = {
+                actualUserName: taskActualUserName.value,
+                newUserName: taskNewUserName.value,
+            };
+            ipcRenderer.send('change-userName', user);
+        } else {
+            hideLoadingPage(800, 1200, false);
+            const message = `<p style="background-color: red; padding: 5px"> Le mot de passe ne correspond pas. </p>`;
+            document.getElementById('password-error').innerHTML = message;
+        };
     } else {
+        hideLoadingPage(800, 1200, false);
         const message = `<p style="background-color: red; padding: 5px"> Cet identifiant ne correspond pas au compte actuel. </p>`;
         document.getElementById('actualUserName-error').innerHTML = message;
     };
@@ -84,6 +89,7 @@ taskForm.addEventListener('submit', e => {
 
 ipcRenderer.on("userName-exist", (e, args) => {
     const userName_exist = JSON.parse(args);
+    hideLoadingPage(800, 1200, false);
     const message = `<p style="background-color: red; padding: 5px"> ${userName_exist} </p>`
     document.getElementById('newUserName-error').innerHTML = message;
 });

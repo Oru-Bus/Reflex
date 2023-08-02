@@ -54,13 +54,11 @@ function handleRedirect(location, minSeconds, maxSeconds) {
 
 taskForm.addEventListener('submit', e => {
     e.preventDefault();
-    showLoadingPage();
     if(taskPassword.value != taskRePassword.value){
-        hideLoadingPage(800, 1200, false);
-        const message = `<p style="background-color: red; padding: 5px"> La répétition du mot de passe n'est pas bonne. </p>`
-        document.getElementById('password-repeat-error').innerHTML = message;
+        const message = `<p style="background-color: red; padding: 5px"> La répétition du mot de passe n'est pas bonne. </p>`;
         document.getElementById('email-error').innerHTML = "";
         document.getElementById('userName-error').innerHTML = "";
+        document.getElementById('password-repeat-error').innerHTML = message;
     }
     else {
         const users = {
@@ -68,6 +66,7 @@ taskForm.addEventListener('submit', e => {
             email: taskEmail.value,
             password: taskPassword.value,
         };
+        showLoadingPage();
         ipcRenderer.send('new-users', users);
     };
 });
@@ -75,19 +74,19 @@ taskForm.addEventListener('submit', e => {
 ipcRenderer.on("email-exist", (e, args) => {
     const email_exist = JSON.parse(args);
     hideLoadingPage(800, 1200, false);
-    const message = `<p style="background-color: red; padding: 5px"> ${email_exist} </p>`
-    document.getElementById('email-error').innerHTML = message;
+    const message = `<p style="background-color: red; padding: 5px"> ${email_exist} </p>`;
     document.getElementById('userName-error').innerHTML = "";
     document.getElementById('password-repeat-error').innerHTML = "";
+    document.getElementById('email-error').innerHTML = message;
 });
 
 ipcRenderer.on("userName-exist", (e, args) => {
     const userName_exist = JSON.parse(args);
     hideLoadingPage(800, 1200, false);
-    const message = `<p style="background-color: red; padding: 5px"> ${userName_exist} </p>`
-    document.getElementById('userName-error').innerHTML = message;
+    const message = `<p style="background-color: red; padding: 5px"> ${userName_exist} </p>`;
     document.getElementById('email-error').innerHTML = "";
     document.getElementById('password-repeat-error').innerHTML = "";
+    document.getElementById('userName-error').innerHTML = message;
 });
 
 ipcRenderer.on("new-user-created", (e, args) => {
