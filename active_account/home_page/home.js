@@ -4,6 +4,7 @@ const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 const {Chart, Legend, Title} = require('chart.js/auto');
 var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+const {saveAs} = require('file-saver');
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
 
@@ -132,8 +133,6 @@ function displayChrono() {
 function stopChrono() {
     clearInterval(timeIntervals);
     chronoElement.textContent = "60 : 000";
-    docName = "";
-    doc = "";
 };
 
 const startBtn = document.getElementById("startArduino");
@@ -143,6 +142,8 @@ startBtn.addEventListener('click', () => {
     lastClickTime = Date.now();
     nbrBuzzList = [];
     reflexTimeList = [];
+    docName = "";
+    doc = "";
 
     var now = new Date();
     var year   = now.getFullYear();
@@ -229,4 +230,15 @@ addData.addEventListener('click', (e) => {
 const stopBtn = document.getElementById("stopArduino");
 stopBtn.addEventListener('click', () => {
     stopChrono();
+});
+
+const exportData = document.getElementById("exportData");
+exportData.addEventListener('click', () => {
+    if (!doc) {
+        alert("Aucune donnée à exporter.");
+        return;
+    }
+    const dataToExport = JSON.stringify(doc);
+    const blob = new Blob([dataToExport], { type: 'text/plain' });
+    saveAs(blob, 'nom_du_fichier.txt');
 });
