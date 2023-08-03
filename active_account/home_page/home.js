@@ -113,8 +113,11 @@ function updateChartWithData(data, label) {
 
 const chronoElement = document.getElementById('chrono');
 let startTime;
-let timerInterval;
+let timeIntervals = [];
 var docName = "";
+var doc = "";
+var nbrBuzzList = [];
+var reflexTimeList = [];
 function displayChrono() {
     const elapsedTime = Date.now() - startTime;
     const seconds = Math.floor(elapsedTime / 1000);
@@ -128,15 +131,19 @@ function displayChrono() {
 };
 
 function stopChrono() {
-    clearInterval(timerInterval);
+    clearInterval(timeIntervals);
     chronoElement.textContent = "60 : 000";
     docName = "";
+    doc = "";
 };
 
 const startBtn = document.getElementById("startArduino");
 startBtn.addEventListener('click', () => {
     startTime = Date.now();
-    timerInterval = setInterval(displayChrono, 1);
+    timeIntervals = setInterval(displayChrono, 1);
+    lastClickTime = Date.now();
+    nbrBuzzList = [];
+    reflexTimeList = [];
 
     var now = new Date();
     var year   = now.getFullYear();
@@ -145,7 +152,7 @@ startBtn.addEventListener('click', () => {
     var hour   = ('0'+now.getHours()  ).slice(-2);
     var minute  = ('0'+now.getMinutes()).slice(-2);
     docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
-    
+    timeIntervals.length = 0;
 
     const client = new MongoClient(dbUrl);
     async function run() {
@@ -156,6 +163,7 @@ startBtn.addEventListener('click', () => {
             const doc = {
                 documentName: docName,
                 numberOfBuzz: 0,
+                time: [],
             };
             await collection.insertOne(doc);
             console.log("Doc insert");
@@ -164,6 +172,10 @@ startBtn.addEventListener('click', () => {
         };
     };
     run().catch(console.dir);
+
+    const predefinedLabel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    const predefinedData = [];
+    updateChartWithData(predefinedData, predefinedLabel);
 });
 
 let lastClickTime = Date.now();
@@ -173,8 +185,6 @@ function formatTime(milliseconds) {
     return `${seconds}.${remainingMilliseconds.toString().padStart(3, '0')}`;
 };
 
-var nbrBuzzList = [];
-var reflexTimeList = [];
 const addData = document.getElementById('addData');
 addData.addEventListener('click', (e) => {
     e.preventDefault();
@@ -191,7 +201,7 @@ addData.addEventListener('click', (e) => {
                 { $inc: { numberOfBuzz: 1 },
                 $push: { reflexTime: formatTime(elapsedTime) } }
             );
-            const doc = await collection.findOne(
+            doc = await collection.findOne(
                 {documentName: docName}
             );
             if (doc.numberOfBuzz > 1) {
@@ -211,8 +221,12 @@ addData.addEventListener('click', (e) => {
     };
     run().catch(console.dir);
 
-    console.log(reflexTimeList);
     const predefinedLabel = nbrBuzzList;
     const predefinedData = reflexTimeList;
     updateChartWithData(predefinedData, predefinedLabel);
+});
+
+const stopBtn = document.getElementById("stopArduino");
+stopBtn.addEventListener('click', () => {
+    stopChrono();
 });
