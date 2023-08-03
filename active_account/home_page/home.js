@@ -80,6 +80,7 @@ const lineChart = new Chart(ctx, {
     data: {
         labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
         datasets: [{
+            label: "",
             data: [],
             fill: false,
             borderWidth: 2.5
@@ -92,11 +93,6 @@ const lineChart = new Chart(ctx, {
                 stacked: false
             }
         },
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
         elements: {
             point: {
                 radius: 2
@@ -105,9 +101,12 @@ const lineChart = new Chart(ctx, {
     }
 });
 
-function updateChartWithData(data, label) {
+function updateChartWithData(data, label, fileName) {
     lineChart.data.datasets[0].data = data;
     lineChart.data.labels = label;
+    if (fileName != ""){
+        lineChart.data.datasets[0].label = fileName;
+    };
     lineChart.update();
 };
 
@@ -175,7 +174,8 @@ startBtn.addEventListener('click', () => {
 
     const predefinedLabel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
     const predefinedData = [];
-    updateChartWithData(predefinedData, predefinedLabel);
+    const dataFileName = docName;
+    updateChartWithData(predefinedData, predefinedLabel, dataFileName);
 });
 
 let lastClickTime = Date.now();
@@ -223,7 +223,7 @@ addData.addEventListener('click', (e) => {
 
     const predefinedLabel = nbrBuzzList;
     const predefinedData = reflexTimeList;
-    updateChartWithData(predefinedData, predefinedLabel);
+    updateChartWithData(predefinedData, predefinedLabel, "");
 });
 
 const stopBtn = document.getElementById("stopArduino");
