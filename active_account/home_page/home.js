@@ -4,7 +4,8 @@ const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 const {Chart, Legend, Title} = require('chart.js/auto');
 var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
-const {saveAs} = require('file-saver');
+const { saveAs } = require('file-saver');
+const CryptoJS = require('crypto-js');
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
 
@@ -239,6 +240,9 @@ exportData.addEventListener('click', () => {
         return;
     }
     const dataToExport = JSON.stringify(doc);
-    const blob = new Blob([dataToExport], { type: 'text/plain' });
+    const dataWordArray = CryptoJS.enc.Utf8.parse(dataToExport);
+    const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.lib.WordArray.random(256 / 8).toString());
+    const encryptedDatas = CryptoJS.AES.encrypt(dataWordArray.toString(), secretKey.toString()).toString();
+    const blob = new Blob([encryptedDatas], { type: 'text/plain' });
     saveAs(blob, 'nom_du_fichier.txt');
 });
