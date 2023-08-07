@@ -172,7 +172,6 @@ startBtn.addEventListener('click', () => {
             const doc = {
                 documentName: docName,
                 numberOfBuzz: 0,
-                time: [],
             };
             await collection.insertOne(doc);
             console.log("Doc insert");
@@ -249,8 +248,34 @@ exportData.addEventListener('click', () => {
     }
     const dataToExport = JSON.stringify(doc);
     const dataWordArray = CryptoJS.enc.Utf8.parse(dataToExport);
-    const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.lib.WordArray.random(256 / 8).toString());
+    const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.lib.WordArray.random(256 / 8));
     const encryptedDatas = CryptoJS.AES.encrypt(dataWordArray.toString(), secretKey.toString()).toString();
     const blob = new Blob([encryptedDatas], { type: 'text/plain' });
-    saveAs(blob, 'file.txt');
+    saveAs(blob, docName+'.txt');
+    const secretKeyHex = CryptoJS.enc.Hex.stringify(secretKey);
+    const client = new MongoClient(dbUrl);
+    async function run() {
+        try {
+            const database = client.db("Reflex");
+            const collection = database.collection(userInfos.userName);
+            const secretKeyDocument = await collection.findOne(
+                {documentName: "secretKeys"}
+            );
+            if (secretKeyDocument) {
+                await collection.updateOne(
+                    {documentName: "secretKeys"},
+                    {$set: {[docName]: secretKeyHex}}
+                )
+            } else {
+                const keyDoc = {
+                    documentName: "secretKeys",
+                    docName: secretKeyHex
+                }
+                await collection.insertOne(keyDoc);
+            };
+        } finally {
+            await client.close();
+        };
+    };
+    run().catch(console.dir);
 });
