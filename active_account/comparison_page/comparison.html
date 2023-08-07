@@ -1,0 +1,36 @@
+<!-- By Oru-Bus - orubus.twitch@gmail.com -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Reflex</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.min.js 'unsafe-inline';" />
+        <link rel="stylesheet" href="comparison.css">
+    </head>
+    <body>
+        <div class="main">
+            <div class="menu">
+                <li>
+                    <a href="../home_page/home.html" id="homeLink" style="text-decoration:none"><img src="../navbar/home_image.png" title="Home" class="pictures"></a>
+                </li>
+                <li>
+                    <a href="comparison.html" id="comparisonLink" style="text-decoration:none"><img src="../navbar/comparison_image.png" title="Comparaison" class="pictures"></a>
+                </li>
+                <li>
+                    <a href="../tutorials_page/tutorials.html" id="tutoLink" style="text-decoration:none"><img src="../navbar/book_image.png" title="Tutoriels" class="pictures"></a>
+                </li>
+                <li>
+                    <a href="../settings_page/settings.html" id="settingsLink" style="text-decoration:none"><img src="../navbar/setting_image.png" title="Paramètres" class="pictures"></a>
+                </li>
+            </div>
+            <div class="body">
+                <h1>Comparaison</h1>
+                <hr>
+                <canvas id="chart"></canvas>
+                <button type="submit" class="importData" id="importData">Importer un fichier</button>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.min.js"></script>
+        <script src="./comparison.js"></script>
+    </body>
+</html>

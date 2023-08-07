@@ -1,3 +1,8 @@
+/* By Oru-Bus - orubus.twitch@gmail.com */
+
+const {Chart, Legend, Title} = require('chart.js/auto');
+
+
 function showLoadingPage() {
     isLoading = true;
 
@@ -71,4 +76,31 @@ settingsLink.addEventListener('click', (e) => {
     showLoadingPage();
     const linkHref = settingsLink.getAttribute('href');
     handleRedirect(linkHref, 150, 400);
+});
+
+const ctx = document.getElementById('chart');
+const lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        datasets: [{
+            label: "",
+            data: [],
+            fill: false,
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                stacked: false
+            }
+        },
+        elements: {
+            point: {
+                radius: 2
+            }
+        }
+    }
 });

@@ -87,6 +87,14 @@ homeLink.addEventListener('click', (e) => {
     handleRedirect(linkHref, 150, 400);
 });
 
+const comparisonLink = document.getElementById('comparisonLink');
+comparisonLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = comparisonLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
+});
+
 const tutoLink = document.getElementById('tutoLink');
 tutoLink.addEventListener('click', (e) => {
     e.preventDefault();

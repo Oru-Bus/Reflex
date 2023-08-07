@@ -60,6 +60,14 @@ homeLink.addEventListener('click', (e) => {
     handleRedirect(linkHref, 150, 400);
 });
 
+const comparisonLink = document.getElementById('comparisonLink');
+comparisonLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const linkHref = comparisonLink.getAttribute('href');
+    handleRedirect(linkHref, 150, 400);
+});
+
 const tutoLink = document.getElementById('tutoLink');
 tutoLink.addEventListener('click', (e) => {
     e.preventDefault();
@@ -244,5 +252,5 @@ exportData.addEventListener('click', () => {
     const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.lib.WordArray.random(256 / 8).toString());
     const encryptedDatas = CryptoJS.AES.encrypt(dataWordArray.toString(), secretKey.toString()).toString();
     const blob = new Blob([encryptedDatas], { type: 'text/plain' });
-    saveAs(blob, 'nom_du_fichier.txt');
+    saveAs(blob, 'file.txt');
 });
