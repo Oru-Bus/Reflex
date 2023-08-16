@@ -104,3 +104,8 @@ const lineChart = new Chart(ctx, {
         }
     }
 });
+
+const importData = document.getElementById('importData');
+importData.addEventListener('click', (e) => {
+    e.preventDefault();
+});

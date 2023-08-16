@@ -144,7 +144,7 @@ function stopChrono() {
     chronoElement.textContent = "60 : 000";
 };
 
-const startBtn = document.getElementById("startArduino");
+const startBtn = document.getElementById("startReflex");
 startBtn.addEventListener('click', () => {
     startTime = Date.now();
     timeIntervals = setInterval(displayChrono, 1);
@@ -235,7 +235,7 @@ addData.addEventListener('click', (e) => {
     updateChartWithData(predefinedData, predefinedLabel, "");
 });
 
-const stopBtn = document.getElementById("stopArduino");
+const stopBtn = document.getElementById("stopReflex");
 stopBtn.addEventListener('click', () => {
     stopChrono();
 });
