@@ -252,7 +252,6 @@ exportData.addEventListener('click', () => {
     const encryptedDatas = CryptoJS.AES.encrypt(dataWordArray.toString(), secretKey.toString()).toString();
     const blob = new Blob([encryptedDatas], { type: 'text/plain' });
     saveAs(blob, docName+'.txt');
-    const secretKeyHex = CryptoJS.enc.Hex.stringify(secretKey);
     const client = new MongoClient(dbUrl);
     async function run() {
         try {
@@ -264,14 +263,17 @@ exportData.addEventListener('click', () => {
             if (secretKeyDocument) {
                 await collection.updateOne(
                     {documentName: "secretKeys"},
-                    {$set: {[docName]: secretKeyHex}}
+                    {$set: {[docName]: secretKey.toString()}}
                 )
             } else {
                 const keyDoc = {
                     documentName: "secretKeys",
-                    docName: secretKeyHex
                 }
                 await collection.insertOne(keyDoc);
+                await collection.updateOne(
+                    {documentName: "secretKeys"},
+                    {$set: {[docName]: secretKey.toString()}}
+                )
             };
         } finally {
             await client.close();
