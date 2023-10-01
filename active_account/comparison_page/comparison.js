@@ -1,6 +1,14 @@
 /* By Oru-Bus - orubus.twitch@gmail.com */
 
 const {Chart, Legend, Title} = require('chart.js/auto');
+const fs = require('fs');
+const CryptoJS = require('crypto-js');
+const {ipcRenderer} = require('electron');
+const {MongoClient} = require("mongodb");
+var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+const userInfos = require('../account/user_informations.json');
+const path = require('path');
+const { saveAs } = require('file-saver');
 
 
 function showLoadingPage() {
@@ -105,7 +113,56 @@ const lineChart = new Chart(ctx, {
     }
 });
 
+function decryptData(encryptedData, secretKey) {
+    const key = CryptoJS.lib.WordArray.create(secretKey.words, secretKey.sigBytes);
+    const encryptedBytes = CryptoJS.enc.Base64.parse(encryptedData);
+    const decryptedBytes = CryptoJS.AES.decrypt(encryptedBytes, key, { iv: null });
+    return decryptedBytes.toString(CryptoJS.enc.Utf8);
+};
+
 const importData = document.getElementById('importData');
-importData.addEventListener('click', (e) => {
-    e.preventDefault();
+importData.addEventListener('click', () => {
+    const extensionFile = 'txt';
+    ipcRenderer.send('choose-encrypted-file', extensionFile);
+});
+
+ipcRenderer.on("encrypted-file-path", async (e, args) => {
+    const filepath = path.normalize(args).replace(/"/g, '');
+    const fileInfo = path.parse(filepath);
+    const fileNameWithoutExtension = fileInfo.name;
+    
+    const client = new MongoClient(dbUrl);
+    try {
+        const database = client.db("Reflex");
+        const collection = database.collection(userInfos.userName);
+        const secretKeyDocument = await collection.findOne({ documentName: "secretKeys" });
+
+        if (secretKeyDocument && secretKeyDocument[fileNameWithoutExtension]) {
+            const secretKey = secretKeyDocument[fileNameWithoutExtension];
+            
+            try {
+                const encryptedData = fs.readFileSync(filepath, "utf-8");
+                console.log("Encrypted Data:", encryptedData);
+        
+                const decryptedText = decryptData(encryptedData, secretKey);
+                console.log("Decrypted Text:", decryptedText);
+        
+                try {
+                    const jsonData = JSON.parse(decryptedText);
+                    console.log("Decrypted JSON Data:", jsonData);
+        
+                    const blob = new Blob([decryptedText], { type: 'application/json' });
+                    saveAs(blob, 'apres.json');
+                } catch (jsonError) {
+                    console.error("Erreur lors de l'analyse JSON :", jsonError);
+                };
+            } catch (err) {
+                console.error("Erreur lors de la lecture du fichier :", err);
+            };
+        } else {
+            alert("Vous n'avez pas enregistré ce fichier avec ce compte.");
+        };
+    } finally {
+        await client.close();
+    };
 });

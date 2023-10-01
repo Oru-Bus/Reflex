@@ -87,6 +87,14 @@ button:hover {
     border-radius: 10px;
 }
 
+#deleteAccount {
+    width: auto;
+    padding: 3px 5px;
+    border-color: #f44336;
+    color: #f44336;
+    border-radius: 10px;
+}
+
 #disconnect {
     width: auto;
     padding: 3px 5px;

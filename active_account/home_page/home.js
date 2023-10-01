@@ -145,7 +145,7 @@ function stopChrono() {
 };
 
 const startBtn = document.getElementById("startReflex");
-startBtn.addEventListener('click', () => {
+startBtn.addEventListener('click', async () => {
     startTime = Date.now();
     timeIntervals = setInterval(displayChrono, 1);
     lastClickTime = Date.now();
@@ -185,6 +185,11 @@ startBtn.addEventListener('click', () => {
     const predefinedData = [];
     const dataFileName = docName;
     updateChartWithData(predefinedData, predefinedLabel, dataFileName);
+    try {
+        await fetch('http://192.168.1.21/start');
+    } catch (error) {
+        console.error('Error starting ESP32: ', error);
+    }
 });
 
 let lastClickTime = Date.now();
@@ -236,8 +241,13 @@ addData.addEventListener('click', (e) => {
 });
 
 const stopBtn = document.getElementById("stopReflex");
-stopBtn.addEventListener('click', () => {
+stopBtn.addEventListener('click', async () => {
     stopChrono();
+    try {
+        await fetch('http://192.168.1.21/stop');
+    } catch (error) {
+        console.error('Error starting ESP32: ', error);
+    }
 });
 
 const exportData = document.getElementById("exportData");
@@ -247,9 +257,10 @@ exportData.addEventListener('click', () => {
         return;
     }
     const dataToExport = JSON.stringify(doc);
-    const dataWordArray = CryptoJS.enc.Utf8.parse(dataToExport);
+    const test = new Blob([dataToExport], { type: 'text/plain' });
+    saveAs(test, 'avant.txt');
     const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.lib.WordArray.random(256 / 8));
-    const encryptedDatas = CryptoJS.AES.encrypt(dataWordArray.toString(), secretKey.toString()).toString();
+    const encryptedDatas = CryptoJS.AES.encrypt(dataToExport, secretKey.toString()).toString();
     const blob = new Blob([encryptedDatas], { type: 'text/plain' });
     saveAs(blob, docName+'.txt');
     const client = new MongoClient(dbUrl);
@@ -263,7 +274,7 @@ exportData.addEventListener('click', () => {
             if (secretKeyDocument) {
                 await collection.updateOne(
                     {documentName: "secretKeys"},
-                    {$set: {[docName]: secretKey.toString()}}
+                    {$set: {[docName]: secretKey}}
                 )
             } else {
                 const keyDoc = {
@@ -272,7 +283,7 @@ exportData.addEventListener('click', () => {
                 await collection.insertOne(keyDoc);
                 await collection.updateOne(
                     {documentName: "secretKeys"},
-                    {$set: {[docName]: secretKey.toString()}}
+                    {$set: {[docName]: secretKey}}
                 )
             };
         } finally {

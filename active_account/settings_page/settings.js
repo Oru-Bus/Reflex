@@ -4,6 +4,8 @@ const changeInfoButtons = document.querySelectorAll(".changeInfo");
 const fs = require('fs');
 const changePasswordLink = "../change_password_page/change_password.html";
 const changeUserNameLink = "../change_userName_page/change_userName.html";
+const {ipcRenderer} = require('electron');
+const userInfos = require('../account/user_informations.json');
 
 
 function showLoadingPage() {
@@ -76,6 +78,15 @@ disconnectBtn.addEventListener('click', (e) => {
             console.log(err);
         };
     });
+    handleRedirect('../../log_in_page/login.html', 2500, 3500);
+});
+
+const deleteAccountBtn = document.getElementById("deleteAccount");
+deleteAccountBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoadingPage();
+    const user = userInfos.userName;
+    ipcRenderer.send('delete-account', user);
     handleRedirect('../../log_in_page/login.html', 2500, 3500);
 });
 

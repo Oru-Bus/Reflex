@@ -119,8 +119,37 @@ ipcMain.on('change-password', async (e, args) => {
     e.reply("password-changed", JSON.stringify(message));
 });
 
+ipcMain.on('delete-account', async (e, args) => {
+    const user = args;
+    await Users.deleteOne(
+        {userName: user}
+    );
+    const url = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+    const databasename = 'Reflex';
+    MongoClient.connect(url).then(async (client) => {
+        const connect = client.db(databasename);
+        await connect.collection(user).drop();
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     };
+});
+
+ipcMain.on("choose-encrypted-file", async (e, args) => {
+    dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ extensions: [args] }]
+    }).then(result => {
+        if (!result.canceled) {
+            const filePath = result.filePaths[0];
+            e.reply("encrypted-file-path", JSON.stringify(filePath));
+        };
+    }).catch(err => {
+        console.error('Erreur lors de la sélection du fichier :', err);
+    });
 });
