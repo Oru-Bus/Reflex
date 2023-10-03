@@ -6,6 +6,7 @@ const {Chart, Legend, Title} = require('chart.js/auto');
 var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
 const { saveAs } = require('file-saver');
 const CryptoJS = require('crypto-js');
+const {SerialPort} = require('serialport');
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
 
@@ -185,11 +186,23 @@ startBtn.addEventListener('click', async () => {
     const predefinedData = [];
     const dataFileName = docName;
     updateChartWithData(predefinedData, predefinedLabel, dataFileName);
-    try {
-        await fetch('http://192.168.1.21/start');
-    } catch (error) {
-        console.error('Error starting ESP32: ', error);
-    }
+    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
+        if (err) {
+            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
+        } else {
+            port.write('start', (err) => {
+                if (err) {
+                    console.error('Erreur lors de l\'écriture sur le port série :', err);
+                } else {
+                    port.close((err) => {
+                        if (err) {
+                            console.error('Erreur lors de la fermeture de la connexion série :', err);
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 let lastClickTime = Date.now();
@@ -243,11 +256,23 @@ addData.addEventListener('click', (e) => {
 const stopBtn = document.getElementById("stopReflex");
 stopBtn.addEventListener('click', async () => {
     stopChrono();
-    try {
-        await fetch('http://192.168.1.21/stop');
-    } catch (error) {
-        console.error('Error starting ESP32: ', error);
-    }
+    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
+        if (err) {
+            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
+        } else {
+            port.write('stop', (err) => {
+                if (err) {
+                    console.error('Erreur lors de l\'écriture sur le port série :', err);
+                } else {
+                    port.close((err) => {
+                        if (err) {
+                            console.error('Erreur lors de la fermeture de la connexion série :', err);
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 const exportData = document.getElementById("exportData");
