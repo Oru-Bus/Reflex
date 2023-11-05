@@ -3,10 +3,11 @@
 const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 const {Chart, Legend, Title} = require('chart.js/auto');
-var dbUrl = 'mongodb+srv://Orubus:MfoVIG3zuGOriLjN@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+var dbUrl = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
 const { saveAs } = require('file-saver');
 const CryptoJS = require('crypto-js');
-const {SerialPort} = require('serialport');
+const {SerialPort, ReadlineParser} = require('serialport');
+
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
 
@@ -123,69 +124,79 @@ function updateChartWithData(data, label, fileName) {
 
 const chronoElement = document.getElementById('chrono');
 let startTime;
+var elapsedTime = 0;
+let seconds = 0;
+let isPortOpen = false;
 let timeIntervals = [];
 var docName = "";
 var doc = "";
 var nbrBuzzList = [];
 var reflexTimeList = [];
+
 function displayChrono() {
-    const elapsedTime = Date.now() - startTime;
-    const seconds = Math.floor(elapsedTime / 1000);
+    elapsedTime = Date.now() - startTime;
+    seconds = Math.floor(elapsedTime / 1000);
     const milliseconds = elapsedTime % 1000;
     if (seconds >= 60) {
         stopChrono();
+        console.log("60 secondes écoulées");
     } else {
         const formattedTime = `${seconds.toString().padStart(2, '0')} : ${milliseconds.toString().padStart(3, '0')}`;
         chronoElement.textContent = formattedTime;
-    }
+
+        if (!isPortOpen) {
+            const port = new SerialPort({ path: 'COM3', baudRate: 115200 }, (err) => {
+                if (err) {
+                    console.error('Erreur lors de l\'ouverture de la connexion série (testLED):', err);
+                } else {
+                    port.on('data', (data) => {
+                        const receivedData = data.toString().trim();
+                        if (receivedData === 'LED_OFF') {
+                            console.log('La LED s\'est éteinte.');
+                            addData();
+                        };
+                        port.close((err) => {
+                            if (err) {
+                                console.error('Erreur lors de la fermeture de la connexion série :', err);
+                            }
+                            isPortOpen = false;
+                        });
+                    });
+                    port.on('error', (error) => {
+                        console.error('Erreur de communication série :', error);
+                        isPortOpen = false;
+                    });
+                };
+            });
+            isPortOpen = true;
+        };
+    };
 };
 
 function stopChrono() {
     clearInterval(timeIntervals);
     chronoElement.textContent = "60 : 000";
+    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
+        if (err) {
+            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
+        } else {
+            port.write('stop', (err) => {
+                if (err) {
+                    console.error('Erreur lors de l\'écriture sur le port série :', err);
+                } else {
+                    port.close((err) => {
+                        if (err) {
+                            console.error('Erreur lors de la fermeture de la connexion série :', err);
+                        }
+                    });
+                };
+            });
+        };
+    });
 };
 
 const startBtn = document.getElementById("startReflex");
 startBtn.addEventListener('click', async () => {
-    startTime = Date.now();
-    timeIntervals = setInterval(displayChrono, 1);
-    lastClickTime = Date.now();
-    nbrBuzzList = [];
-    reflexTimeList = [];
-    docName = "";
-    doc = "";
-
-    var now = new Date();
-    var year   = now.getFullYear();
-    var month    = ('0'+(now.getMonth()+1)).slice(-2);
-    var day    = ('0'+now.getDate()   ).slice(-2);
-    var hour   = ('0'+now.getHours()  ).slice(-2);
-    var minute  = ('0'+now.getMinutes()).slice(-2);
-    docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
-    timeIntervals.length = 0;
-
-    const client = new MongoClient(dbUrl);
-    async function run() {
-        try {
-            const database = client.db("Reflex");
-            const collection = database.collection(userInfos.userName);
-
-            const doc = {
-                documentName: docName,
-                numberOfBuzz: 0,
-            };
-            await collection.insertOne(doc);
-            console.log("Doc insert");
-        } finally {
-            await client.close();
-        };
-    };
-    run().catch(console.dir);
-
-    const predefinedLabel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    const predefinedData = [];
-    const dataFileName = docName;
-    updateChartWithData(predefinedData, predefinedLabel, dataFileName);
     const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
         if (err) {
             console.error('Erreur lors de l\'ouverture de la connexion série :', err);
@@ -203,6 +214,47 @@ startBtn.addEventListener('click', async () => {
             });
         }
     });
+    setTimeout(function() {
+        startTime = Date.now();
+        lastClickTime = Date.now();
+        timeIntervals = setInterval(displayChrono, 50);
+        nbrBuzzList = [];
+        reflexTimeList = [];
+        docName = "";
+        doc = "";
+
+        var now = new Date();
+        var year   = now.getFullYear();
+        var month    = ('0'+(now.getMonth()+1)).slice(-2);
+        var day    = ('0'+now.getDate()   ).slice(-2);
+        var hour   = ('0'+now.getHours()  ).slice(-2);
+        var minute  = ('0'+now.getMinutes()).slice(-2);
+        docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
+        timeIntervals.length = 0;
+
+        const client = new MongoClient(dbUrl);
+        async function run() {
+            try {
+                const database = client.db("Reflex");
+                const collection = database.collection(userInfos.userName);
+
+                const doc = {
+                    documentName: docName,
+                    numberOfBuzz: 0,
+                };
+                await collection.insertOne(doc);
+                console.log("Doc insert");
+            } finally {
+                await client.close();
+            };
+        };
+        run().catch(console.dir);
+
+        const predefinedLabel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+        const predefinedData = [];
+        const dataFileName = docName;
+        updateChartWithData(predefinedData, predefinedLabel, dataFileName);
+    }, 4000);
 });
 
 let lastClickTime = Date.now();
@@ -212,9 +264,7 @@ function formatTime(milliseconds) {
     return `${seconds}.${remainingMilliseconds.toString().padStart(3, '0')}`;
 };
 
-const addData = document.getElementById('addData');
-addData.addEventListener('click', (e) => {
-    e.preventDefault();
+function addData() {
     const currentTime = Date.now();
     const elapsedTime = currentTime - lastClickTime;
     lastClickTime = currentTime;
@@ -251,28 +301,11 @@ addData.addEventListener('click', (e) => {
     const predefinedLabel = nbrBuzzList;
     const predefinedData = reflexTimeList;
     updateChartWithData(predefinedData, predefinedLabel, "");
-});
+};
 
 const stopBtn = document.getElementById("stopReflex");
 stopBtn.addEventListener('click', async () => {
     stopChrono();
-    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
-        if (err) {
-            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
-        } else {
-            port.write('stop', (err) => {
-                if (err) {
-                    console.error('Erreur lors de l\'écriture sur le port série :', err);
-                } else {
-                    port.close((err) => {
-                        if (err) {
-                            console.error('Erreur lors de la fermeture de la connexion série :', err);
-                        }
-                    });
-                }
-            });
-        }
-    });
 });
 
 const exportData = document.getElementById("exportData");
