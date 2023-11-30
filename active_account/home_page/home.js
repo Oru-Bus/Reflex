@@ -7,6 +7,7 @@ var dbUrl = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?r
 const { saveAs } = require('file-saver');
 const CryptoJS = require('crypto-js');
 const {SerialPort, ReadlineParser} = require('serialport');
+const { set } = require('mongoose');
 
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
@@ -124,6 +125,7 @@ function updateChartWithData(data, label, fileName) {
 
 const chronoElement = document.getElementById('chrono');
 let startTime;
+let reflexStopped = false;
 var elapsedTime = 0;
 let seconds = 0;
 let isPortOpen = false;
@@ -132,6 +134,25 @@ var docName = "";
 var doc = "";
 var nbrBuzzList = [];
 var reflexTimeList = [];
+let port;
+
+function openSerialPort() {
+    port = new SerialPort({ path: 'COM3', baudRate: 115200 }, (err) => {
+        if (err) {
+            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
+        };
+    });
+};
+
+function closeSerialPort() {
+    port.close((err) => {
+        if (err) {
+            console.error('Erreur lors de la fermeture de la connexion série :', err);
+        } else {
+            console.log("Port close");
+        };
+    });
+};
 
 function displayChrono() {
     elapsedTime = Date.now() - startTime;
@@ -143,81 +164,87 @@ function displayChrono() {
     } else {
         const formattedTime = `${seconds.toString().padStart(2, '0')} : ${milliseconds.toString().padStart(3, '0')}`;
         chronoElement.textContent = formattedTime;
+        verifDataInPort();
+    };
+};
 
-        if (!isPortOpen) {
-            const port = new SerialPort({ path: 'COM3', baudRate: 115200 }, (err) => {
-                if (err) {
-                    console.error('Erreur lors de l\'ouverture de la connexion série (testLED):', err);
-                } else {
-                    port.on('data', (data) => {
-                        const receivedData = data.toString().trim();
-                        if (receivedData === 'LED_OFF') {
-                            console.log('La LED s\'est éteinte.');
-                            addData();
-                        };
-                        port.close((err) => {
-                            if (err) {
-                                console.error('Erreur lors de la fermeture de la connexion série :', err);
-                            }
-                            isPortOpen = false;
-                        });
-                    });
-                    port.on('error', (error) => {
-                        console.error('Erreur de communication série :', error);
-                        isPortOpen = false;
-                    });
-                };
-            });
-            isPortOpen = true;
-        };
+function verifDataInPort() {
+    if (!isPortOpen) {
+        openSerialPort();
+        console.log("vérif data");
+        port.on('data', (data) => {
+            const receivedData = data.toString().trim();
+            if (reflexStopped) {
+                closeSerialPort();
+                setTimeout(function() {
+                    stopReflex();
+                    isPortOpen = false;
+                }, 150);
+            } else if (receivedData === 'LED_OFF') {
+                console.log('La LED s\'est éteinte.');
+                addData();
+                closeSerialPort();
+                setTimeout(function() {
+                    isPortOpen = false;
+                }, 150);
+            };
+        });
+        port.on('error', (error) => {
+            console.error('Erreur de communication série :', error);
+            isPortOpen = false;
+        });
+        isPortOpen = true;
     };
 };
 
 function stopChrono() {
     clearInterval(timeIntervals);
-    chronoElement.textContent = "60 : 000";
-    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
+    chronoElement.textContent = "60 : 000"; 
+    reflexStopped = true;
+    verifDataInPort();
+};
+
+function callDisplayChrono() {
+    timeIntervals = setInterval(function() {
+        displayChrono();
+        if (reflexStopped) {
+            clearInterval(timeIntervals);
+        };
+    }, 50);
+};
+
+function startReflex() {
+    openSerialPort();
+    port.write('start', (err) => {
         if (err) {
-            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
+            console.error('Erreur lors de l\'écriture sur le port série :', err);
         } else {
-            port.write('stop', (err) => {
-                if (err) {
-                    console.error('Erreur lors de l\'écriture sur le port série :', err);
-                } else {
-                    port.close((err) => {
-                        if (err) {
-                            console.error('Erreur lors de la fermeture de la connexion série :', err);
-                        }
-                    });
-                };
-            });
+            closeSerialPort();
+        }
+    });
+    reflexStopped = false;
+};
+
+function stopReflex() {
+    openSerialPort();
+    port.write('stop', (err) => {
+        if (err) {
+            console.error('Erreur lors de l\'écriture sur le port série :', err);
+        } else {
+            closeSerialPort();
         };
     });
+    console.log("Reflex stoppé");
 };
 
 const startBtn = document.getElementById("startReflex");
 startBtn.addEventListener('click', async () => {
-    const port = new SerialPort({path: 'COM3', baudRate: 115200 }, (err) => {
-        if (err) {
-            console.error('Erreur lors de l\'ouverture de la connexion série :', err);
-        } else {
-            port.write('start', (err) => {
-                if (err) {
-                    console.error('Erreur lors de l\'écriture sur le port série :', err);
-                } else {
-                    port.close((err) => {
-                        if (err) {
-                            console.error('Erreur lors de la fermeture de la connexion série :', err);
-                        }
-                    });
-                }
-            });
-        }
-    });
+    startReflex();
     setTimeout(function() {
         startTime = Date.now();
+        reflexStopped = false;
+        callDisplayChrono();
         lastClickTime = Date.now();
-        timeIntervals = setInterval(displayChrono, 50);
         nbrBuzzList = [];
         reflexTimeList = [];
         docName = "";
@@ -230,7 +257,7 @@ startBtn.addEventListener('click', async () => {
         var hour   = ('0'+now.getHours()  ).slice(-2);
         var minute  = ('0'+now.getMinutes()).slice(-2);
         docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
-        timeIntervals.length = 0;
+
 
         const client = new MongoClient(dbUrl);
         async function run() {
