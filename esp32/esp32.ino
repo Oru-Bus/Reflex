@@ -10,7 +10,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 const int buttonPin = 33;
 const int ledPin = 13;
-const unsigned long minButtonPressDuration = 1000;
+const unsigned long minButtonPressDuration = 200;
 
 int nbrLEDOff = 0;
 int lastButtonState = 0;
@@ -77,7 +77,7 @@ void loop() {
 
         if (buttonPressDuration >= minButtonPressDuration) {
           digitalWrite(ledPin, LOW);
-          delay(1500);
+          delay(300);
           nbrLEDOff = nbrLEDOff + 1;
           display.clearDisplay();
           display.setCursor(0, 10);

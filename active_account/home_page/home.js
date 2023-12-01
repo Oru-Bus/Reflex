@@ -7,7 +7,7 @@ var dbUrl = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?r
 const { saveAs } = require('file-saver');
 const CryptoJS = require('crypto-js');
 const {SerialPort, ReadlineParser} = require('serialport');
-const { set } = require('mongoose');
+const {ipcRenderer} = require('electron');
 
 
 document.getElementById('hello-user').innerHTML = "Bonjour " + userInfos.userName;
@@ -240,6 +240,7 @@ function stopReflex() {
 const startBtn = document.getElementById("startReflex");
 startBtn.addEventListener('click', async () => {
     startReflex();
+    ipcRenderer.send('verif-nbr-doc-in-collection', userInfos.userName);
     setTimeout(function() {
         startTime = Date.now();
         reflexStopped = false;
@@ -247,41 +248,49 @@ startBtn.addEventListener('click', async () => {
         lastClickTime = Date.now();
         nbrBuzzList = [];
         reflexTimeList = [];
-        docName = "";
-        doc = "";
-
-        var now = new Date();
-        var year   = now.getFullYear();
-        var month    = ('0'+(now.getMonth()+1)).slice(-2);
-        var day    = ('0'+now.getDate()   ).slice(-2);
-        var hour   = ('0'+now.getHours()  ).slice(-2);
-        var minute  = ('0'+now.getMinutes()).slice(-2);
-        docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
-
-
-        const client = new MongoClient(dbUrl);
-        async function run() {
-            try {
-                const database = client.db("Reflex");
-                const collection = database.collection(userInfos.userName);
-
-                const doc = {
-                    documentName: docName,
-                    numberOfBuzz: 0,
-                };
-                await collection.insertOne(doc);
-                console.log("Doc insert");
-            } finally {
-                await client.close();
-            };
-        };
-        run().catch(console.dir);
 
         const predefinedLabel = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
         const predefinedData = [];
         const dataFileName = docName;
         updateChartWithData(predefinedData, predefinedLabel, dataFileName);
     }, 4000);
+});
+
+ipcRenderer.on("document-can-be-created", (e, args) => {
+    const over30 = JSON.parse(args);
+    if (over30) {
+        console.log("1 document supprimé");
+    };
+    
+    docName = "";
+    doc = "";
+
+    var now = new Date();
+    var year   = now.getFullYear();
+    var month    = ('0'+(now.getMonth()+1)).slice(-2);
+    var day    = ('0'+now.getDate()   ).slice(-2);
+    var hour   = ('0'+now.getHours()  ).slice(-2);
+    var minute  = ('0'+now.getMinutes()).slice(-2);
+    docName = (year+"_"+month+"_"+day+"_"+hour+"_"+minute);
+
+
+    const client = new MongoClient(dbUrl);
+    async function run() {
+        try {
+            const database = client.db("Reflex");
+            const collection = database.collection(userInfos.userName);
+
+            const doc = {
+                documentName: docName,
+                numberOfBuzz: 0,
+            };
+            await collection.insertOne(doc);
+            console.log("Doc insert");
+        } finally {
+            await client.close();
+        };
+    };
+    run().catch(console.dir);
 });
 
 let lastClickTime = Date.now();

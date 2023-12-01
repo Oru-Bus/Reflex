@@ -134,6 +134,26 @@ ipcMain.on('delete-account', async (e, args) => {
     });
 });
 
+ipcMain.on('verif-nbr-doc-in-collection', async (e, args) => {
+    const user = args;
+    const url = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+    const databasename = 'Reflex';
+    var over30 = false;
+    MongoClient.connect(url).then(async (client) => {
+        const connect = client.db(databasename).collection(user);
+        const nbrOfDocuments = await connect.countDocuments({});
+        if (nbrOfDocuments >= 30) {
+            over30 = true;
+            await connect.deleteOne();
+            e.reply("document-can-be-created", JSON.stringify(over30));
+        } else {
+            e.reply("document-can-be-created", JSON.stringify(over30));
+        };
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
