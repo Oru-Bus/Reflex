@@ -62,7 +62,7 @@ ipcMain.on('new-users', async (e, args) => {
     } else {
         const newUser = new Users(args);
         const userSaved = await newUser.save();
-        const url = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+        const url = '';
         const databasename = 'Reflex';
         MongoClient.connect(url).then((client) => {
             const connect = client.db(databasename);
@@ -124,7 +124,7 @@ ipcMain.on('delete-account', async (e, args) => {
     await Users.deleteOne(
         {userName: user}
     );
-    const url = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+    const url = '';
     const databasename = 'Reflex';
     MongoClient.connect(url).then(async (client) => {
         const connect = client.db(databasename);
@@ -136,7 +136,7 @@ ipcMain.on('delete-account', async (e, args) => {
 
 ipcMain.on('verif-nbr-doc-in-collection', async (e, args) => {
     const user = args;
-    const url = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+    const url = '';
     const databasename = 'Reflex';
     var over30 = false;
     MongoClient.connect(url).then(async (client) => {
