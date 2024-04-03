@@ -3,7 +3,7 @@
 const userInfos = require('../account/user_informations.json');
 const {MongoClient} = require("mongodb");
 const {Chart, Legend, Title} = require('chart.js/auto');
-var dbUrl = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+var dbUrl = '';
 const { saveAs } = require('file-saver');
 const CryptoJS = require('crypto-js');
 const {SerialPort, ReadlineParser} = require('serialport');
