@@ -5,7 +5,7 @@ const fs = require('fs');
 const CryptoJS = require('crypto-js');
 const {ipcRenderer} = require('electron');
 const {MongoClient} = require("mongodb");
-var dbUrl = 'mongodb+srv://Orubus:BwtRdt1D8TQ7MZnk@reflex.zly0zm0.mongodb.net/?retryWrites=true&w=majority';
+var dbUrl = '';
 const userInfos = require('../account/user_informations.json');
 const path = require('path');
 const { saveAs } = require('file-saver');
